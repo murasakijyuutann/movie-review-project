@@ -1,30 +1,27 @@
 // src/components/NavBar.jsx
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
-export default function NavBar() {
+export default function NavBar({ user, setUser }) {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const getUser = () => {
-    try { return JSON.parse(localStorage.getItem('user') || 'null'); }
-    catch { return null; }
-  };
-
-  const [user, setUser] = useState(getUser);
   const [q, setQ] = useState('');
 
-  useEffect(() => { setUser(getUser()); }, [location.pathname]);
+  // Keep URL-driven state like search only; auth state comes from props
 
-  useEffect(() => {
-    const onStorage = (e) => { if (e.key === 'user') setUser(getUser()); };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await fetch(`${API_ROOT}/api/auth/logout`, { credentials: 'include' });
+    } catch {
+      // ignore
+    }
+    try {
+      localStorage.removeItem('user');
+    } catch {
+      // ignore
+    }
+    setUser?.(null);
     navigate('/login');
   };
 
@@ -95,7 +92,7 @@ export default function NavBar() {
               <button
                 onClick={logout}
                 className={`${linkBase} bg-gray-600 text-white`}
-                title={`Logout ${user.name || ''}`}
+                title={`Logout ${user?.name || ''}`}
               >
                 Logout
               </button>

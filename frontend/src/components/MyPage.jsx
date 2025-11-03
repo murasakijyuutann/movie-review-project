@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function MyPage({ user }) {
-  const [profile, setProfile] = useState({ id: user.id, name: user.name || '', email: user.email || '' });
+  const [profile, setProfile] = useState(() => (
+    user ? { id: user.id, name: user.name || '', email: user.email || '' } : { id: null, name: '', email: '' }
+  ));
   const [favs, setFavs] = useState([]);
   const [visible, setVisible] = useState(4);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function MyPage({ user }) {
         setLoading(false);
       }
     })();
-  }, [user?.id]);
+  }, [user, navigate, base]);
 
   useEffect(() => {
     if (!user) return;
@@ -44,9 +46,11 @@ export default function MyPage({ user }) {
           setFavs(data);
           setVisible(Math.min(4, data.length));
         }
-      } catch {}
+      } catch {
+        // ignore
+      }
     })();
-  }, [user?.id]);
+  }, [user, base]);
 
   const removeFav = async (movieId) => {
     try {
@@ -58,7 +62,9 @@ export default function MyPage({ user }) {
           return next;
         });
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   };
 
   const saveProfile = async (e) => {
@@ -77,7 +83,7 @@ export default function MyPage({ user }) {
       }
       setMsg('✅ Profile updated');
       setProfile({ id: data.user.id, name: data.user.name, email: data.user.email });
-    } catch (e) {
+    } catch {
       setErr('Network error');
     }
   };
@@ -99,7 +105,7 @@ export default function MyPage({ user }) {
       if (!res.ok) return setErr(data?.message || 'Password change failed');
       setMsg('✅ Password updated');
       setPwd({ currentPassword: '', newPassword: '', confirm: '' });
-    } catch (e) {
+    } catch {
       setErr('Network error');
     } finally {
       setPwdBusy(false);
@@ -109,7 +115,9 @@ export default function MyPage({ user }) {
   const logout = async () => {
     try {
       await fetch(`${base}/api/auth/logout`, { credentials: 'include' });
-    } catch {}
+    } catch {
+      // ignore
+    }
     navigate('/login');
   };
 

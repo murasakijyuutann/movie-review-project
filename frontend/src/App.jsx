@@ -9,10 +9,10 @@ import MyPage from './components/MyPage';
 import SearchResult from './components/SearchResult';
 import MovieDetail from './components/MovieDetail'; // ✅ IMPORT ADDED
 
-function Layout({ user }) {
+function Layout({ user, setUser }) {
   return (
     <>
-      <NavBar user={user} />
+      <NavBar user={user} setUser={setUser} />
       <div className="min-h-screen bg-gradient-to-br from-black via-indigo-950 to-gray-900 text-white pt-24 p-8">
         <Outlet />
       </div>
@@ -45,10 +45,21 @@ export default function App() {
           }
         } else {
           setUser(null);
+          // clear any stale client cache that might mislead UI
+          try {
+            localStorage.removeItem('user');
+          } catch {
+            // ignore storage errors
+          }
         }
       } catch (err) {
         console.error('Session check error:', err);
         setUser(null);
+        try {
+          localStorage.removeItem('user');
+        } catch {
+          // ignore storage errors
+        }
       } finally {
         setLoading(false);
       }
@@ -61,7 +72,7 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Layout user={user} />}>
+      <Route path="/" element={<Layout user={user} setUser={setUser} />}>
         <Route index element={<HomePage />} />
         <Route path="login" element={<Login setUser={setUser} />} />
         <Route path="signup" element={<Signup />} />
