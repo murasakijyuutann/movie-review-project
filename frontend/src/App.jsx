@@ -25,11 +25,12 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/auth/me', {
+        const res = await fetch(`${API_ROOT}/api/auth/me`, {
           credentials: 'include',
         });
         if (res.ok) {
@@ -54,7 +55,7 @@ export default function App() {
     };
 
     checkSession();
-  }, [navigate]);
+  }, [navigate, API_ROOT]);
 
   if (loading) return <div className="text-white p-8">Loading...</div>;
 

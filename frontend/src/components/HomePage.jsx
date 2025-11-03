@@ -9,6 +9,7 @@ export default function HomePage({ logoutMsg }) {
   const [showButton, setShowButton] = useState(false);
   const observer = useRef();
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+  const bearer = import.meta.env.VITE_TMDB_BEARER;
 
   useEffect(() => {
     const fetchMovies = () => {
@@ -16,10 +17,11 @@ export default function HomePage({ logoutMsg }) {
       axios
         .get('https://api.themoviedb.org/3/movie/popular', {
           params: {
-            api_key: apiKey,
+            ...(bearer ? {} : { api_key: apiKey }),
             language: 'en-EN',
             page: page,
           },
+          headers: bearer ? { Authorization: `Bearer ${bearer}` } : undefined,
         })
         .then((response) => {
           setMovies((prev) => [...prev, ...response.data.results]);
@@ -33,7 +35,7 @@ export default function HomePage({ logoutMsg }) {
     };
 
     fetchMovies();
-  }, [apiKey, page]);
+  }, [apiKey, bearer, page]);
 
   const lastMovieRef = useCallback(
     (node) => {

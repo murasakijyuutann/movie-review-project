@@ -7,6 +7,7 @@ export default function MovieDetail() {
   const navigate = useNavigate();
 
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+  const bearer = import.meta.env.VITE_TMDB_BEARER;
   const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
   const movieId = String(id);
   const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
@@ -40,7 +41,8 @@ export default function MovieDetail() {
     const fetchMovieDetail = async () => {
       try {
         const res = await axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
-          params: { api_key: apiKey, language: 'en-US' }, // ✅ FIXED
+          params: { ...(bearer ? {} : { api_key: apiKey }), language: 'en-US' },
+          headers: bearer ? { Authorization: `Bearer ${bearer}` } : undefined,
         });
         setMovie(res.data);
         setNotFound(false);
@@ -51,7 +53,7 @@ export default function MovieDetail() {
     };
 
     fetchMovieDetail();
-  }, [id, apiKey]);
+  }, [id, apiKey, bearer]);
 
   useEffect(() => {
     if (!user) return;
@@ -59,7 +61,7 @@ export default function MovieDetail() {
       .then((r) => r.json())
       .then((d) => setSaved(!!d.saved))
       .catch(() => {});
-  }, [movieId, user?.id]);
+  }, [movieId, user, base]);
 
   useEffect(() => {
     (async () => {
@@ -70,7 +72,7 @@ export default function MovieDetail() {
         /* ignore */
       }
     })();
-  }, [movieId]);
+  }, [movieId, base]);
 
   const toggleFavorite = async () => {
     if (!user) {

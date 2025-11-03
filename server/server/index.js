@@ -1,8 +1,11 @@
 import 'dotenv/config';
 import express from 'express';
 import './passport-setup.js'; // load passport config
+import fs from 'fs';
 import session from 'express-session';
 import passport from 'passport';
+import dns from 'dns/promises';
+import net from 'net';
 import helmet from 'helmet';
 import cors from 'cors';
 import { createPool } from 'mysql2/promise';
@@ -19,6 +22,22 @@ const requireLogin = (req, res, next) => {
 const app = express();
 
 // --- DB pool ---
+const sslConfig = (() => {
+  if (process.env.DB_SSL === 'true') {
+    try {
+      if (process.env.DB_SSL_CA_PATH) {
+        return { ca: fs.readFileSync(process.env.DB_SSL_CA_PATH) };
+      }
+      // Use default trusted store with TLSv1.2+ if no CA provided
+      return { minVersion: 'TLSv1.2' };
+    } catch (e) {
+      console.warn('DB_SSL enabled but failed to load CA:', e);
+      return { minVersion: 'TLSv1.2' };
+    }
+  }
+  return undefined;
+})();
+
 const pool = createPool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT || 3306),
@@ -27,7 +46,19 @@ const pool = createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
+  connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT || 10000),
+  ssl: sslConfig,
 });
+
+// Eager connectivity probe (logs only)
+(async () => {
+  try {
+    const [r] = await pool.query('SELECT 1 as ok');
+    console.log('DB connectivity OK →', r && r[0] ? r[0] : r);
+  } catch (e) {
+    console.error('DB connectivity check failed:', e?.code || e);
+  }
+})();
 
 // middleware order matters
 app.use(helmet());
@@ -43,9 +74,13 @@ app.use(
 
 // ✅ Moved up to enable session-aware routes
 app.use(session({
-  secret: 'your-session-secret',
+  secret: process.env.SESSION_SECRET || 'dev-session-secret',
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  },
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -66,6 +101,46 @@ app.get('/api/debug/db', async (req, res) => {
     console.error('DB TEST ERROR:', e);
     res.status(500).json({ ok: false, error: String(e) });
   }
+});
+
+// Extra diagnostics: DNS and TCP to DB host
+app.get('/api/debug/dns', async (req, res) => {
+  try {
+    const host = process.env.DB_HOST;
+    if (!host) return res.status(400).json({ ok: false, error: 'Missing DB_HOST' });
+    const addrs = await dns.lookup(host, { all: true });
+    res.json({ ok: true, host, addresses: addrs });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e) });
+  }
+});
+
+app.get('/api/debug/tcp', async (req, res) => {
+  const host = process.env.DB_HOST;
+  const port = Number(process.env.DB_PORT || 3306);
+  if (!host) return res.status(400).json({ ok: false, error: 'Missing DB_HOST' });
+
+  const start = Date.now();
+  const socket = new net.Socket();
+  socket.setTimeout(5000);
+
+  const result = await new Promise((resolve) => {
+    socket.once('connect', () => {
+      const ms = Date.now() - start;
+      socket.destroy();
+      resolve({ ok: true, ms });
+    });
+    socket.once('timeout', () => {
+      socket.destroy();
+      resolve({ ok: false, error: 'TIMEOUT' });
+    });
+    socket.once('error', (err) => {
+      resolve({ ok: false, error: err.code || String(err) });
+    });
+    socket.connect(port, host);
+  });
+
+  res.json({ host, port, ...result });
 });
 
 // --- Signup endpoint ---

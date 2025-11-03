@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+export default function Login({ setUser }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +18,7 @@ export default function Login() {
     setSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:3001/api/auth/login', {
+      const res = await fetch(`${API_ROOT}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -39,9 +40,9 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.open('http://localhost:3001/api/auth/google', '_self');
-  };
+  // const handleGoogleLogin = () => {
+  //   window.open(`${API_ROOT}/api/auth/google`, '_self');
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-black p-6">
