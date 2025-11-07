@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
-export default function MyPage({ user }) {
+export default function MyPage({ user, setUser }) {
   const [profile, setProfile] = useState(() => (
     user ? { id: user.id, name: user.name || '', email: user.email || '' } : { id: null, name: '', email: '' }
   ));
@@ -13,7 +14,6 @@ export default function MyPage({ user }) {
   const [pwd, setPwd] = useState({ currentPassword: '', newPassword: '', confirm: '' });
   const [pwdBusy, setPwdBusy] = useState(false);
   const navigate = useNavigate();
-  const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
   useEffect(() => {
     if (!user) {
@@ -23,45 +23,38 @@ export default function MyPage({ user }) {
 
     (async () => {
       try {
-        const res = await fetch(`${base}/api/users/${user.id}`);
-        if (!res.ok) throw new Error('Failed to load profile');
-        const data = await res.json();
+        const { data } = await api.get(`/users/${user.id}`);
         setProfile({ id: data.id, name: data.name, email: data.email });
       } catch (e) {
-        setErr(e.message);
+        setErr(e?.response?.data?.message || e.message || 'Failed to load profile');
       } finally {
         setLoading(false);
       }
     })();
-  }, [user, navigate, base]);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!user) return;
 
     (async () => {
       try {
-        const res = await fetch(`${base}/api/users/${user.id}/favorites`);
-        if (res.ok) {
-          const data = await res.json();
-          setFavs(data);
-          setVisible(Math.min(4, data.length));
-        }
+        const { data } = await api.get(`/users/${user.id}/favorites`);
+        setFavs(data);
+        setVisible(Math.min(4, data.length));
       } catch {
         // ignore
       }
     })();
-  }, [user, base]);
+  }, [user]);
 
   const removeFav = async (movieId) => {
     try {
-      const res = await fetch(`${base}/api/users/${profile.id}/favorites/${movieId}`, { method: 'DELETE' });
-      if (res.ok) {
-        setFavs((prev) => {
-          const next = prev.filter((f) => f.movieId !== String(movieId));
-          setVisible((v) => Math.min(v, next.length));
-          return next;
-        });
-      }
+      await api.delete(`/users/${profile.id}/favorites/${movieId}`);
+      setFavs((prev) => {
+        const next = prev.filter((f) => f.movieId !== String(movieId));
+        setVisible((v) => Math.min(v, next.length));
+        return next;
+      });
     } catch {
       // ignore
     }
@@ -71,20 +64,15 @@ export default function MyPage({ user }) {
     e.preventDefault();
     setErr(''); setMsg('');
     try {
-      const res = await fetch(`${base}/api/users/${profile.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: profile.name, email: profile.email }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErr(data?.message || 'Update failed');
-        return;
-      }
+      const { data } = await api.put(`/users/${profile.id}`, { name: profile.name, email: profile.email });
       setMsg('✅ Profile updated');
       setProfile({ id: data.user.id, name: data.user.name, email: data.user.email });
-    } catch {
-      setErr('Network error');
+      try {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser?.(data.user);
+      } catch { /* ignore */ }
+    } catch (e) {
+      setErr(e?.response?.data?.message || 'Update failed');
     }
   };
 
@@ -96,28 +84,23 @@ export default function MyPage({ user }) {
 
     try {
       setPwdBusy(true);
-      const res = await fetch(`${base}/api/users/${profile.id}/password`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword: pwd.currentPassword, newPassword: pwd.newPassword }),
+      await api.put(`/users/${profile.id}/password`, {
+        currentPassword: pwd.currentPassword,
+        newPassword: pwd.newPassword,
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) return setErr(data?.message || 'Password change failed');
       setMsg('✅ Password updated');
       setPwd({ currentPassword: '', newPassword: '', confirm: '' });
-    } catch {
-      setErr('Network error');
+    } catch (e) {
+      setErr(e?.response?.data?.message || 'Password change failed');
     } finally {
       setPwdBusy(false);
     }
   };
 
   const logout = async () => {
-    try {
-      await fetch(`${base}/api/auth/logout`, { credentials: 'include' });
-    } catch {
-      // ignore
-    }
+    try { localStorage.removeItem('token'); } catch { /* ignore */ }
+    try { localStorage.removeItem('user'); } catch { /* ignore */ }
+    setUser?.(null);
     navigate('/login');
   };
 

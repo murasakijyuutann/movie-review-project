@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import api from '../api/axios';
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -8,7 +9,7 @@ export default function MovieDetail() {
 
   const apiKey = import.meta.env.VITE_TMDB_API_KEY;
   const bearer = import.meta.env.VITE_TMDB_BEARER;
-  const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+  // api base is configured in the axios instance
   const movieId = String(id);
   const TMDB_IMG = 'https://image.tmdb.org/t/p/w500';
 
@@ -57,22 +58,22 @@ export default function MovieDetail() {
 
   useEffect(() => {
     if (!user) return;
-    fetch(`${base}/api/users/${user.id}/favorites/${movieId}`)
-      .then((r) => r.json())
-      .then((d) => setSaved(!!d.saved))
+    api
+      .get(`/users/${user.id}/favorites/${movieId}`)
+      .then((r) => setSaved(!!r.data?.saved))
       .catch(() => {});
-  }, [movieId, user, base]);
+  }, [movieId, user]);
 
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch(`${base}/api/movies/${movieId}/reviews`);
-        if (r.ok) setReviews(await r.json());
+        const { data } = await api.get(`/movies/${movieId}/reviews`);
+        setReviews(Array.isArray(data) ? data : []);
       } catch {
         /* ignore */
       }
     })();
-  }, [movieId, base]);
+  }, [movieId]);
 
   const toggleFavorite = async () => {
     if (!user) {
@@ -82,18 +83,14 @@ export default function MovieDetail() {
     }
 
     if (saved) {
-      await fetch(`${base}/api/users/${user.id}/favorites/${movieId}`, { method: 'DELETE' });
+      await api.delete(`/users/${user.id}/favorites/${movieId}`);
       setSaved(false);
     } else {
-      await fetch(`${base}/api/users/${user.id}/favorites`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          movieId,
-          title: movie?.title || movie?.name || 'Untitled',
-          posterUrl: movie?.poster_path ? `${TMDB_IMG}${movie.poster_path}` : null,
-          overview: movie?.overview || null,
-        }),
+      await api.post(`/users/${user.id}/favorites`, {
+        movieId,
+        title: movie?.title || movie?.name || 'Untitled',
+        posterUrl: movie?.poster_path ? `${TMDB_IMG}${movie.poster_path}` : null,
+        overview: movie?.overview || null,
       });
       setSaved(true);
     }
@@ -109,25 +106,15 @@ export default function MovieDetail() {
 
     try {
       setBusy(true);
-      const r = await fetch(`${base}/api/movies/${movieId}/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          content: content.trim(),
-          rating: rating ? Number(rating) : null,
-        }),
+      const { data } = await api.post(`/movies/${movieId}/reviews`, {
+        content: content.trim(),
+        rating: rating ? Number(rating) : null,
       });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        alert(data?.message || 'Failed to submit review');
-        return;
-      }
       setReviews((prev) => [data, ...prev]);
       setContent('');
       setRating(0);
-    } catch {
-      alert('Network error');
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to submit review');
     } finally {
       setBusy(false);
     }
@@ -151,24 +138,14 @@ export default function MovieDetail() {
 
     try {
       setEditBusy(true);
-      const r = await fetch(`${base}/api/reviews/${editId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          content: editContent.trim(),
-          rating: editRating ? Number(editRating) : null,
-        }),
+      await api.put(`/reviews/${editId}`, {
+        content: editContent.trim(),
+        rating: editRating ? Number(editRating) : null,
       });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        alert(data?.message || 'Failed to update review');
-        return;
-      }
-      setReviews((prev) => prev.map((x) => (x.id === editId ? { ...x, ...data } : x)));
+      setReviews((prev) => prev.map((x) => (x.id === editId ? { ...x, content: editContent.trim(), rating: editRating ? Number(editRating) : null, updatedAt: new Date().toISOString() } : x)));
       cancelEdit();
-    } catch {
-      alert('Network error');
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to update review');
     } finally {
       setEditBusy(false);
     }
@@ -178,19 +155,10 @@ export default function MovieDetail() {
     if (!user || !window.confirm('このレビューを削除しますか？')) return;
 
     try {
-      const r = await fetch(`${base}/api/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }),
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        alert(data?.message || 'Failed to delete');
-        return;
-      }
+      await api.delete(`/reviews/${reviewId}`);
       setReviews((prev) => prev.filter((x) => x.id !== reviewId));
-    } catch {
-      alert('Network error');
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to delete');
     }
   };
 

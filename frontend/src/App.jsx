@@ -1,5 +1,6 @@
 import { Routes, Route, useNavigate, Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import api from './api/axios';
 
 import NavBar from './components/NavBar';
 import HomePage from './components/HomePage';
@@ -25,48 +26,37 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
+  // JWT bootstrap: if token exists, verify it and fetch user
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch(`${API_ROOT}/api/auth/me`, {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-
-          // ✅ Redirect to /mypage only if URL has auth-related hash (optional)
-          const isFromGoogleLogin = document.referrer.includes('accounts.google.com') ||
-                                    window.location.search.includes('code=');
-          if (isFromGoogleLogin) {
-            navigate('/mypage');
-          }
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setUser(null);
+          return;
+        }
+        const { data } = await api.get('/auth/me');
+        const u = data?.user || data; // tolerate {user} or user
+        if (u) {
+          setUser(u);
         } else {
           setUser(null);
-          // clear any stale client cache that might mislead UI
-          try {
-            localStorage.removeItem('user');
-          } catch {
-            // ignore storage errors
-          }
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
       } catch (err) {
-        console.error('Session check error:', err);
-        setUser(null);
-        try {
+          console.error('Auth bootstrap failed', err);
+          setUser(null);
+          localStorage.removeItem('token');
           localStorage.removeItem('user');
-        } catch {
-          // ignore storage errors
-        }
       } finally {
         setLoading(false);
       }
     };
 
     checkSession();
-  }, [navigate, API_ROOT]);
+  }, [navigate]);
 
   if (loading) return <div className="text-white p-8">Loading...</div>;
 
@@ -75,10 +65,10 @@ export default function App() {
       <Route path="/" element={<Layout user={user} setUser={setUser} />}>
         <Route index element={<HomePage />} />
         <Route path="login" element={<Login setUser={setUser} />} />
-        <Route path="signup" element={<Signup />} />
+        <Route path="signup" element={<Signup setUser={setUser} />} />
         <Route path="search" element={<SearchResult />} />
-        <Route path="mypage" element={<MyPage user={user} />} />
-        <Route path="movie/:id" element={<MovieDetail />} /> {/* ✅ MISSING ROUTE ADDED */}
+        <Route path="mypage" element={<MyPage user={user} setUser={setUser} />} />
+        <Route path="movie/:id" element={<MovieDetail />} />
       </Route>
     </Routes>
   );

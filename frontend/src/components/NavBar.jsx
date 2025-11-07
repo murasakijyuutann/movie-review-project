@@ -8,19 +8,10 @@ export default function NavBar({ user, setUser }) {
 
   // Keep URL-driven state like search only; auth state comes from props
 
-  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
-
   const logout = async () => {
-    try {
-      await fetch(`${API_ROOT}/api/auth/logout`, { credentials: 'include' });
-    } catch {
-      // ignore
-    }
-    try {
-      localStorage.removeItem('user');
-    } catch {
-      // ignore
-    }
+    // Stateless JWT logout: clear client-side token and user
+  try { localStorage.removeItem('token'); } catch { /* ignore */ }
+  try { localStorage.removeItem('user'); } catch { /* ignore */ }
     setUser?.(null);
     navigate('/login');
   };

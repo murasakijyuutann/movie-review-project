@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Login({ setUser }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const API_ROOT = import.meta.env.VITE_API_BASE_URL || '';
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,30 +18,27 @@ export default function Login({ setUser }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`${API_ROOT}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Login failed');
-      } else {
-        localStorage.setItem('user', JSON.stringify(data.user)); // keep for MovieDetail.jsx
-        setUser?.(data.user); // <-- update App state immediately
-        navigate('/mypage');
+      const { data } = await api.post('/auth/login', form);
+      if (!data?.token || !data?.user) {
+        setError('Login failed');
+        return;
       }
-    } catch {
-      setError('Network error');
+      // persist token and user
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      // api instance reads token from localStorage via interceptor
+      setUser?.(data.user);
+      navigate('/mypage');
+    } catch (e) {
+      const msg = e?.response?.data?.message || 'Network error';
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   // const handleGoogleLogin = () => {
-  //   window.open(`${API_ROOT}/api/auth/google`, '_self');
+  //   window.open(`/api/auth/google`, '_self');
   // };
 
   return (

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
-export default function Signup() {
+export default function Signup({ setUser }) {
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -10,6 +12,7 @@ export default function Signup() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // 🆕 ADDED
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -49,36 +52,28 @@ export default function Signup() {
 
     // 🆕 ADDED: call backend
     try {
-      setIsSubmitting(true); // 🆕 ADDED
-      const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'; // 🆕 ADDED
-      const res = await fetch(`${base}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          password: form.password,
-        }),
+      setIsSubmitting(true);
+      const { data } = await api.post('/auth/signup', {
+        name: form.name,
+        email: form.email,
+        password: form.password,
       });
 
-      const data = await res.json().catch(() => ({})); // 🆕 ADDED (avoid JSON parse crash)
-
-      if (!res.ok) {
-        // surfaces 409/email duplicate or validation errors from server
+      if (!data?.token || !data?.user) {
         alert(data?.message || 'Signup failed. Please try again.');
         return;
       }
 
-      alert('Your new account has been successfully created!');
-      console.log('Created user:', data.user); // safe fields only
-
-      // 🆕 ADDED: reset form
-      setForm({ name: '', email: '', password: '', confirmPassword: '' });
+      // persist
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser?.(data.user);
+      navigate('/mypage');
     } catch (err) {
-      console.error(err);
-      alert('Network error. Please check your server is running.');
+      const msg = err?.response?.data?.message || 'Network error. Please check your server is running.';
+      alert(msg);
     } finally {
-      setIsSubmitting(false); // 🆕 ADDED
+      setIsSubmitting(false);
     }
   };
 
