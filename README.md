@@ -1,41 +1,55 @@
 # 🎬 React Movie Review
 
-> **A modern, full-stack movie discovery and review platform**
+> **Full-stack movie discovery platform with user authentication, favorites, and review system**
 
-Explore trending movies, search the TMDB library, view detailed information, manage your favorites, and share reviews with the community. Built with modern web technologies including React 19, Vite, and serverless architecture.
+A production-ready application demonstrating modern web development practices: React 19 with concurrent rendering, serverless API architecture, JWT authentication, and cloud database integration. Browse 1M+ movies from TMDB, save favorites, and share reviews.
+
+**🔗 Live Demo:** *(Deploy and add URL here)*
+**💻 Tech Stack:** React 19 · Vite · Node.js · MySQL · JWT · Tailwind CSS · Vercel Serverless
+**👤 Developer:** Sunmyung Woo
 
 ---
 
-## ⚠️ **Current Status**
+## 🎯 Quick Start
 
-> **🔧 Authentication System Under Maintenance**
-> 
-> Login and registration features are currently being upgraded to a serverless JWT-based architecture for improved scalability and security. During this transition period, authentication endpoints may be temporarily unavailable.
->
-> **Expected Timeline:** Maintenance in progress  
-> **Alternative Access:** Browse movies and view details without authentication
+```bash
+git clone https://github.com/murasakijyuutann/react-movie-review.git
+cd react-movie-review/frontend
+npm install
+# Add TMDB API key to .env (see Configuration section)
+npm run dev  # Starts at http://localhost:5173
+```
+
+> **Note:** Full authentication requires database setup. See [Complete Setup Guide](#%EF%B8%8F-complete-setup-guide) below.
 
 ---
 
 
 ## ✨ Features
 
-### Core Functionality
-- 🎬 **Movie Discovery** — Browse trending and popular titles with infinite scroll
-- 🔍 **Advanced Search** — Find movies by title with real-time results
-- 📖 **Detailed Views** — Rich movie pages with posters, genres, ratings, cast, and synopsis
-- ⭐ **User Favorites** — Save movies to your personal collection *(requires authentication)*
-- ✍️ **Reviews & Ratings** — Write, edit, and delete reviews with custom ratings
-- 🔐 **Secure Authentication** — JWT-based auth with email/password *(currently under maintenance)*
-- 👤 **User Profiles** — Manage account settings, change passwords, view activity
-- 🎨 **Modern UI** — Responsive design with Tailwind CSS and smooth animations
+- **🎬 Movie Discovery** — Browse trending movies with infinite scroll and real-time search across 1M+ titles
+- **⭐ Favorites System** — Save and manage personal movie collections with one-click bookmarking
+- **✍️ Reviews & Ratings** — Full CRUD functionality for user reviews with 1-10 rating scale
+- **🔐 JWT Authentication** — Secure, stateless auth with bcrypt password hashing and token refresh
+- **👤 User Profiles** — Account management with password change and activity tracking
+- **📱 Responsive Design** — Mobile-first UI built with Tailwind CSS
 
-### Technical Highlights
-- ⚡ **Lightning Fast** — Vite-powered development with Hot Module Replacement
-- 🔒 **Secure** — JWT authentication, bcrypt password hashing, SQL injection protection
-- 🌐 **Scalable** — Serverless architecture ready for Vercel deployment
-- 📱 **Responsive** — Mobile-first design that works on all devices
-- 🎯 **Type-Safe** — TypeScript integration for improved code quality
+## 🏗️ Technical Architecture
+
+**Why This Stack?** This project demonstrates production-ready patterns I learned through building scalable web applications:
+
+- **Serverless-First Backend** — Vercel Functions eliminate server management while maintaining full Node.js capabilities
+- **Connection Pooling** — MySQL2 with optimized pooling handles concurrent requests efficiently in serverless environment
+- **Secure Database Access** — AWS RDS with TLS/SSL encryption and parameterized queries prevent SQL injection
+- **JWT Strategy** — Stateless authentication perfect for distributed serverless functions (no session storage needed)
+- **Modern React Patterns** — React 19 concurrent features, custom hooks for auth state, and optimized re-renders
+
+### Key Technical Challenges Solved
+
+1. **Serverless Cold Starts** — Implemented connection pooling to reuse database connections across function invocations
+2. **Auth State Management** — Built custom axios interceptor to handle JWT refresh and automatic token injection
+3. **Protected Routes** — Created reusable auth middleware validating JWTs server-side before data access
+4. **AWS RDS Access** — Configured SSL certificate bundling with Vercel deployment for secure cloud database connections
 
 
 ## 🛠️ Tech Stack
@@ -177,7 +191,7 @@ DB_PASS=your_password
 DB_NAME=movie_app
 DB_SSL=true
 # For local development, use absolute path to cert
-DB_SSL_CA_PATH=C:/Users/your-path/react-movie-review/frontend/certs/global-bundle.pem
+DB_SSL_CA_PATH=/absolute/path/to/react-movie-review/frontend/certs/global-bundle.pem
 JWT_SECRET=your_jwt_secret
 BCRYPT_ROUNDS=10
 ```
@@ -191,106 +205,51 @@ BCRYPT_ROUNDS=10
 - ✅ Restrict database access by IP whitelist in AWS RDS Security Groups
 
 
-## 🚀 Getting Started
+## 📸 Screenshots
+
+*(Add screenshots of your application here to show the UI)*
+
+---
+
+
+## ⚙️ Complete Setup Guide
 
 ### Prerequisites
 
 - **Node.js** 18.x or higher
 - **npm** 9.x or higher
 - **MySQL** 8.0 (AWS RDS recommended)
-- **TMDB API Key** — [Get one here](https://www.themoviedb.org/settings/api)
+- **TMDB API Key** — [Get one free](https://www.themoviedb.org/settings/api)
 - **Vercel CLI** (optional, for local serverless testing)
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone and install dependencies**
    ```bash
-   git clone https://github.com/your-username/react-movie-review.git
-   cd react-movie-review
-   ```
-
-2. **Install frontend dependencies**
-   ```bash
-   cd frontend
+   git clone https://github.com/murasakijyuutann/react-movie-review.git
+   cd react-movie-review/frontend
    npm install
    ```
 
-3. **Configure environment variables**
+2. **Configure TMDB API**
    ```bash
-   # Create frontend environment file
    cp .env.example .env
-   # Edit .env and add your TMDB API key
+   # Edit .env and add: VITE_TMDB_API_KEY=your_key_here
    ```
 
-4. **Set up the database**
-   - Create MySQL database named `movie_app`
-   - Run the schema SQL (see Database Schema section below)
-   - Update database credentials in environment variables
+3. **Run frontend only (browse movies without auth)**
+   ```bash
+   npm run dev  # Starts at http://localhost:5173
+   ```
 
-### Local Development
+4. **For full authentication features:**
+   - Set up MySQL database (see Database Schema below)
+   - Configure serverless environment variables (see Environment Configuration above)
+   - Test locally with `vercel dev` or deploy to Vercel
 
-#### Option A: Vite Dev Server (Frontend Only)
+### Database Schema
 
-For frontend development without authentication:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Vite will start at `http://localhost:5173`
-
-> **Note:** Authentication features won't work without the backend running
-
-#### Option B: Full-Stack with Vercel Dev (Recommended)
-
-For testing serverless functions locally:
-
-```bash
-# Install Vercel CLI globally
-npm i -g vercel
-
-# Navigate to frontend directory
-cd frontend
-
-# Create local environment file
-cp .env .env.local
-# Edit .env.local and add database credentials
-
-# Start Vercel dev server (runs serverless functions)
-vercel dev
-```
-
-Vercel dev starts at `http://localhost:3000`
-
-Then in a **separate terminal**, update `vite.config.js` to proxy to port 3000:
-
-```javascript
-proxy: {
-  '/api': 'http://localhost:3000', // Vercel dev
-}
-```
-
-And start Vite:
-
-```bash
-cd frontend
-npm run dev
-```
-
-### Building for Production
-
-```bash
-cd frontend
-npm run build
-```
-
-Build output will be in `frontend/dist/`
-
-
-## 🗄️ Database Schema
-
-Run the following SQL to set up the required tables in MySQL:
+Run this SQL to set up the required tables in MySQL:
 
 ```sql
 -- Users table
@@ -577,9 +536,11 @@ For production database access:
 
 **Problem:** Login/signup returns 404 or network error
 
-> ⚠️ Authentication system is currently under maintenance. This is expected behavior during the upgrade period.
-
-**Solution:** Wait for maintenance to complete, or test with local serverless functions using `vercel dev`
+**Solutions:**
+- ✅ Verify database is running and accessible
+- ✅ Check environment variables are set correctly (use `/api/health` endpoint)
+- ✅ Test locally with `vercel dev` before deploying
+- ✅ Review Vercel function logs for server-side errors
 
 ---
 
@@ -679,172 +640,34 @@ For production database access:
 - 📝 Clear browser localStorage if auth state seems stuck: `localStorage.clear()`
 
 
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-### How to Contribute
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m "Add: brief description of changes"
-   ```
-4. **Push to your fork**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. **Open a Pull Request**
-
-### Code Standards
-
-- Follow existing code style and conventions
-- Write descriptive commit messages
-- Add comments for complex logic
-- Test your changes before submitting
-- Update documentation if needed
-
-### Reporting Issues
-
-- Use GitHub Issues to report bugs
-- Include steps to reproduce
-- Provide error messages and screenshots
-- Mention your environment (OS, Node version, etc.)
-
----
-
 ## 🔒 Security
 
-### Reporting Vulnerabilities
-
-If you discover a security vulnerability, please **do not** open a public issue. Instead:
-
-- Email security concerns to your-email@example.com
-- Provide detailed information about the vulnerability
-- Allow time for a fix before public disclosure
-
-### Security Best Practices
-
 This project implements:
-- ✅ JWT-based authentication with secure token storage
-- ✅ bcrypt password hashing with adaptive cost factor
+- ✅ JWT-based authentication with httpOnly cookie storage
+- ✅ bcrypt password hashing with adaptive cost factor (10 rounds)
 - ✅ SQL injection prevention via parameterized queries
 - ✅ Environment variable isolation for secrets
-- ✅ TLS/SSL encryption for database connections
+- ✅ TLS/SSL encryption for AWS RDS connections
 - ✅ Input validation and sanitization
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2025 React Movie Review Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+MIT License - Copyright (c) 2025 Sunmyung Woo
 
 ---
 
-## 👥 Authors & Acknowledgments
+## 📞 Contact
 
-### Development Team
-- **Sunmyung Woo** — Lead Developer & Project Maintainer
+**Sunmyung Woo** — [GitHub](https://github.com/murasakijyuutann) · [Email](mailto:fishyboyxx@protonmail.com)
 
-### Special Thanks
-- **The Movie Database (TMDB)** — For providing comprehensive movie data and imagery
-- **Vercel** — For serverless deployment platform and infrastructure
-- **AWS** — For RDS MySQL hosting
-- **React Team** — For the amazing frontend library
-- **Tailwind CSS** — For the utility-first CSS framework
-
-### Open Source Libraries
-
-This project wouldn't be possible without these excellent open-source libraries:
-- React, React Router, Vite
-- Axios, JWT, bcrypt
-- Tailwind CSS, React Icons
-- MySQL2, and many more
+Project Link: [https://github.com/murasakijyuutanne/react-movie-review](https://github.com/murasakijyuutann/react-movie-review)
 
 ---
 
-## 📞 Support & Contact
+## 🙏 Acknowledgments
 
-- **Documentation:** You're reading it! 📖
-- **Issues:** [GitHub Issues](https://github.com/your-username/react-movie-review/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/your-username/react-movie-review/discussions)
-- **Email:** your-email@example.com
-
----
-
-## 🗺️ Roadmap
-
-### Current Version (v1.0)
-- ✅ Core movie browsing and search
-- ✅ User authentication (JWT-based)
-- ✅ Favorites management
-- ✅ Review system with ratings
-- ✅ Responsive UI with Tailwind
-- ✅ Serverless deployment ready
-
-### Planned Features (v1.1)
-- 🔄 Social features (follow users, share reviews)
-- 🔄 Advanced search filters (genre, year, rating)
-- 🔄 Watchlist functionality
-- 🔄 Email verification for new accounts
-- 🔄 Password reset via email
-- 🔄 Review upvoting/downvoting
-- 🔄 User profile avatars
-
-### Future Considerations (v2.0)
-- 💭 Real-time notifications
-- 💭 Movie recommendations based on favorites
-- 💭 Discussion forums per movie
-- 💭 Integration with streaming services
-- 💭 Mobile app (React Native)
-- 💭 AI-powered review summaries
-
----
-
-## ⭐ Show Your Support
-
-If you find this project useful, please consider:
-- ⭐ Starring the repository
-- 🍴 Forking for your own projects
-- 🐛 Reporting bugs or suggesting features
-- 💬 Sharing with others who might find it helpful
-
----
-
-<div align="center">
-
-**Made with ❤️ by the React Movie Review Team**
-
-[Report Bug](https://github.com/your-username/react-movie-review/issues) · 
-[Request Feature](https://github.com/your-username/react-movie-review/issues) · 
-[Documentation](https://github.com/your-username/react-movie-review)
-
-</div>
+- [The Movie Database (TMDB)](https://www.themoviedb.org/) for comprehensive movie data API
+- [Vercel](https://vercel.com/) for serverless deployment platform
+- [AWS RDS](https://aws.amazon.com/rds/) for managed MySQL hosting
