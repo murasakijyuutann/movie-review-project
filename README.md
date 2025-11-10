@@ -1,60 +1,140 @@
-# 🎬 React Movie Review
+# React Movie Review
 
-> **Modern movie discovery application built with React 19 and TMDB API**
+**A modern movie discovery application built with React 19 and The Movie Database (TMDB) API**
 
-A frontend showcase demonstrating modern React development: concurrent rendering, custom hooks, responsive design with Tailwind CSS, and external API integration. Browse and search through 1M+ movies from The Movie Database with a clean, mobile-first interface.
+[![React](https://img.shields.io/badge/React-19.1.0-61dafb?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7.0.4-646cff?logo=vite)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.1.11-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**🔗 Live Demo:** *(Deploy and add URL here)*
-**💻 Tech Stack:** React 19 · Vite · React Router · Tailwind CSS · Axios · TMDB API
-**👤 Developer:** Sunmyung Woo
+**Live Demo:** [https://movie-review-project-tau.vercel.app/]
+**Repository:** [github.com/murasakijyuutann/react-movie-review](https://github.com/murasakijyuutann/react-movie-review)
 
 ---
 
-## 🎯 Quick Start
+## Overview
+
+React Movie Review is a responsive web application that enables users to discover, search, and explore detailed information about movies from The Movie Database's collection of over 1 million titles. Built as a modern React frontend showcase, the application demonstrates current best practices in component architecture, state management, performance optimization, and third-party API integration.
+
+**Key Technologies:** React 19, Vite, React Router, Tailwind CSS, Axios, TMDB API v3
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Features](#features)
+- [Technical Architecture](#technical-architecture)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Deployment](#deployment)
+- [Future Enhancements](#future-enhancements)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Node.js 18.x or higher
+- npm 9.x or higher
+- TMDB API key ([obtain here](https://www.themoviedb.org/settings/api))
+
+### Setup Instructions
 
 ```bash
+# Clone the repository
 git clone https://github.com/murasakijyuutann/react-movie-review.git
 cd react-movie-review/frontend
+
+# Install dependencies
 npm install
 
-# Get free API key: https://www.themoviedb.org/settings/api
-# Create .env file
-echo "VITE_TMDB_API_KEY=your_api_key_here" > .env
+# Configure environment variables
+# Create a .env file in the frontend directory with:
+# VITE_TMDB_API_KEY=your_api_key_here
 
-npm run dev  # Starts at http://localhost:5173
+# Start development server
+npm run dev
 ```
+
+The application will be available at `http://localhost:5173`
 
 ---
 
+## Features
 
-## ✨ Features
+### Core Functionality
 
-- **🎬 Movie Discovery** — Browse trending and popular movies with smooth infinite scroll pagination
-- **🔍 Real-time Search** — Find movies instantly as you type with debounced search across 1M+ titles
-- **📖 Detailed Movie Pages** — Rich information including cast, genres, ratings, synopsis, and high-quality posters
-- **📱 Responsive Design** — Mobile-first UI that adapts seamlessly from phone to desktop
-- **⚡ Fast Performance** — Optimized React rendering with Vite's lightning-fast HMR during development
+- **Movie Discovery**: Browse trending and popular movies with infinite scroll pagination
+- **Advanced Search**: Real-time search with debouncing across the complete TMDB catalog
+- **Detailed Information**: Comprehensive movie pages displaying cast, genres, ratings, synopsis, and high-resolution imagery
+- **Responsive Design**: Mobile-first architecture optimized for all screen sizes
+- **Performance Optimized**: Efficient rendering utilizing React 19's concurrent features and Vite's build optimizations
 
-## 🏗️ Frontend Architecture
+---
 
-**What I Learned Building This:** This project demonstrates modern React patterns and best practices:
+## Technical Architecture
 
-- **React 19 Features** — Leveraged concurrent rendering and automatic batching for smooth UI updates
-- **Custom Hooks** — Built reusable hooks for API calls, infinite scroll, and debounced search
-- **Component Architecture** — Organized components for reusability and maintainability (presentational vs container patterns)
-- **Tailwind CSS** — Utility-first styling for rapid UI development and consistent design system
-- **API Integration** — Axios instance configuration with interceptors and error handling for TMDB API
+### Frontend Implementation
 
-### Key Frontend Challenges Solved
+This application demonstrates production-ready React development patterns:
 
-1. **Infinite Scroll** — Implemented intersection observer pattern to load movies dynamically as user scrolls
-2. **Search Debouncing** — Optimized search performance to reduce API calls while maintaining responsive UX
-3. **Image Loading** — Handled TMDB CDN integration with fallback images and lazy loading
-4. **Routing** — Client-side navigation with React Router for seamless single-page app experience
-5. **State Management** — Managed complex UI state across components without external state library
+#### React 19 Integration
+- Concurrent rendering for improved user experience
+- Automatic batching for optimized state updates
+- Modern hooks architecture (useState, useEffect, useCallback, useMemo)
 
+#### Custom Hooks Architecture
+- Reusable hooks for API integration, infinite scroll, and debounced search
+- Separation of concerns between business logic and presentation
+- Type-safe hook interfaces
 
-## 🛠️ Tech Stack
+#### Component Design
+- Clear distinction between presentational and container components
+- Composable, maintainable component hierarchy
+- Modular architecture for scalability
+
+#### Styling Strategy
+- Tailwind CSS utility-first approach for rapid development
+- Consistent design system implementation
+- Responsive breakpoint management for mobile-first design
+
+#### API Integration
+- Centralized Axios instance with interceptors
+- Comprehensive error handling and retry logic
+- Request/response transformation middleware
+
+### Key Technical Solutions
+
+#### Infinite Scroll Implementation
+- Intersection Observer API for performance-efficient scroll detection
+- Dynamic content loading with skeleton loading states
+- Memory-efficient pagination management
+
+#### Search Optimization
+- Debounced input handling to minimize API requests
+- Loading and error state management
+- Optimized re-rendering with React memoization
+
+#### Image Optimization
+- Lazy loading with Intersection Observer
+- TMDB CDN integration with multiple resolution support
+- Fallback image handling for missing assets
+
+#### Client-Side Routing
+- React Router v7 for seamless SPA navigation
+- Code splitting for optimized bundle sizes
+- Browser history API integration
+
+---
+
+## Technology Stack
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
@@ -66,11 +146,12 @@ npm run dev  # Starts at http://localhost:5173
 | **TMDB API** | v3 | Movie database with 1M+ titles |
 
 ### Development Tools
-- **ESLint** 9.30.1 — Code linting and style enforcement
-- **Git** — Version control
+- **ESLint** 9.30.1 - Code linting and style enforcement
+- **Git** - Version control
 
+---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 react-movie-review/frontend/
@@ -92,157 +173,209 @@ react-movie-review/frontend/
 └── .env                         # TMDB API key (not committed)
 ```
 
+---
 
-## ⚙️ Configuration
+## Configuration
 
 ### TMDB API Setup
 
-1. **Get a free API key:**
-   - Create account at [TMDB](https://www.themoviedb.org/signup)
-   - Navigate to Settings → API
-   - Request API key (choose "Developer" option)
+#### 1. Obtain API Key
 
-2. **Create `.env` file in `frontend/` directory:**
+- Create an account at [TMDB](https://www.themoviedb.org/signup)
+- Navigate to **Settings → API**
+- Request an API key (select "Developer" option)
+- Copy your API Read Access Token (v3 auth)
+
+#### 2. Environment Configuration
+
+Create a `.env` file in the `frontend/` directory:
 
 ```env
 VITE_TMDB_API_KEY=your_tmdb_v3_api_key_here
 ```
 
-3. **Start developing:**
+**Security Note:** Never commit the `.env` file to version control. Ensure it is listed in `.gitignore`.
+
+#### 3. Start Development
 
 ```bash
 npm run dev
 ```
 
-### API Usage Notes
+### API Usage Information
 
-- Frontend makes direct API calls to TMDB (no backend proxy needed)
-- Free tier includes 50 requests/second
-- Images served via TMDB CDN: `https://image.tmdb.org/t/p/w500/`
-- ⚠️ Never commit your `.env` file — add it to `.gitignore`
-
-
-## 📸 Screenshots
-
-*(Add screenshots of your application here to show the UI)*
+- The application makes direct API calls to TMDB (no backend proxy required)
+- Free tier provides 50 requests/second
+- Images are served via TMDB CDN: `https://image.tmdb.org/t/p/w500/`
+- API documentation: [TMDB API Docs](https://developers.themoviedb.org/3)
 
 ---
 
-## 🚀 Development
+## Development
 
-### Prerequisites
-
-- **Node.js** 18.x or higher
-- **npm** 9.x or higher
-
-### Local Development
+### Local Development Commands
 
 ```bash
 # Install dependencies
 npm install
 
-# Start dev server with HMR
-npm run dev  # http://localhost:5173
+# Start development server with HMR
+npm run dev  # Available at http://localhost:5173
 
 # Build for production
 npm run build
 
-# Preview production build
+# Preview production build locally
 npm run preview
+
+# Run linting
+npm run lint
 ```
 
-### Deployment
+### Development Workflow
 
-This project is ready to deploy on any static hosting platform:
+1. Make changes to source files in `src/`
+2. View changes instantly with Vite's Hot Module Replacement (HMR)
+3. Run ESLint to ensure code quality
+4. Test production build with `npm run preview` before deployment
 
-**Vercel (Recommended):**
+---
+
+## Deployment
+
+### Supported Platforms
+
+This application can be deployed to any static hosting service.
+
+#### Vercel (Recommended)
+
 ```bash
 npm i -g vercel
 vercel --prod
 ```
 
-**Netlify:**
+**Environment Variables:** Add `VITE_TMDB_API_KEY` in Vercel project settings.
+
+#### Netlify
+
 ```bash
 npm run build
-# Drag and drop `dist/` folder to Netlify
+# Upload the dist/ folder to Netlify
 ```
 
-**GitHub Pages / Cloudflare Pages:**
-- Build command: `npm run build`
-- Output directory: `dist`
+**Environment Variables:** Add `VITE_TMDB_API_KEY` in Netlify site settings.
 
-Don't forget to add `VITE_TMDB_API_KEY` as an environment variable in your deployment platform settings!
+#### GitHub Pages / Cloudflare Pages
 
+- **Build command:** `npm run build`
+- **Output directory:** `dist`
+- **Environment variables:** Configure `VITE_TMDB_API_KEY` in platform settings
 
-## 🎯 Future Enhancements
+### Deployment Checklist
 
-This project has a backend foundation in place for future full-stack features:
+- [ ] Set `VITE_TMDB_API_KEY` environment variable
+- [ ] Configure build command: `npm run build`
+- [ ] Set output directory: `dist`
+- [ ] Test production build locally before deploying
+- [ ] Verify API key validity and rate limits
 
-- **User Authentication** — JWT-based auth with bcrypt password hashing
-- **Favorites System** — Save movies to personal collections
-- **Review System** — Write and share movie reviews with ratings
-- **User Profiles** — Account management and activity tracking
+---
 
-The backend code (serverless functions with MySQL) exists in the `/api` directory and can be deployed when database infrastructure is set up.
+## Future Enhancements
 
+The project architecture supports expansion to full-stack capabilities:
 
-## 🔧 Troubleshooting
+### Planned Features
+
+- **User Authentication**: JWT-based authentication with secure password hashing (bcrypt)
+- **Favorites System**: Personal movie collections with CRUD operations
+- **Review System**: User-generated reviews with rating functionality
+- **User Profiles**: Account management and activity tracking
+- **Social Features**: Follow users, share reviews, and create watchlists
+
+**Note:** Backend infrastructure (serverless functions with MySQL) exists in the `/api` directory and can be deployed once database infrastructure is provisioned.
+
+---
+
+## Troubleshooting
 
 ### TMDB API Issues
 
-**Problem:** Movies not loading, 401 Unauthorized
+#### Movies not loading (401 Unauthorized)
 
 **Solutions:**
-- ✅ Verify `VITE_TMDB_API_KEY` is set in `frontend/.env`
-- ✅ Restart Vite dev server after changing `.env`
-- ✅ Check API key validity at [TMDB API Settings](https://www.themoviedb.org/settings/api)
-- ✅ Ensure you're not exceeding rate limits (50 req/sec)
+- Verify `VITE_TMDB_API_KEY` is correctly set in `frontend/.env`
+- Restart the Vite dev server after modifying `.env`
+- Confirm API key validity at [TMDB API Settings](https://www.themoviedb.org/settings/api)
+- Check that rate limits (50 req/sec) are not exceeded
 
-**Problem:** Images not displaying
+#### Images not displaying
 
-**Solution:** Check browser console for CORS errors. TMDB images load from `image.tmdb.org`
-
----
+**Solution:** Check browser console for CORS errors. TMDB images are served from `image.tmdb.org` and should load without CORS issues. Verify network connectivity and CDN availability.
 
 ### Build/Deployment Issues
 
-**Problem:** Build fails or app doesn't work after deployment
+#### Build fails or app malfunctions after deployment
 
 **Solutions:**
-- ✅ Verify environment variable `VITE_TMDB_API_KEY` is set in deployment platform
-- ✅ Check build output for errors: `npm run build`
-- ✅ Test production build locally: `npm run preview`
-- ✅ Ensure all dependencies are in `package.json`, not just devDependencies
+- Verify `VITE_TMDB_API_KEY` is set in deployment platform environment variables
+- Review build output for errors: `npm run build`
+- Test production build locally: `npm run preview`
+- Ensure all dependencies are listed in `package.json` dependencies (not devDependencies for production builds)
+- Clear build cache and rebuild: `rm -rf dist node_modules && npm install && npm run build`
+
+### Common Development Issues
+
+#### Hot Module Replacement (HMR) not working
+
+**Solution:** Restart the Vite dev server. Check for syntax errors in recently modified files.
+
+#### Tailwind styles not applying
+
+**Solution:** Verify Tailwind configuration in `tailwind.config.js` and ensure CSS is imported in `main.jsx`.
 
 ---
 
-## 🔒 Best Practices
+## Best Practices Demonstrated
 
-This project demonstrates:
-- ✅ Environment variable management for API keys
-- ✅ Component-based architecture for maintainability
-- ✅ Responsive design patterns
-- ✅ Performance optimization (debouncing, lazy loading)
-- ✅ Clean code practices and ESLint integration
+This project implements industry-standard development practices:
+
+- **Security**: Environment variable management for sensitive API keys
+- **Architecture**: Component-based architecture for maintainability and scalability
+- **Design**: Mobile-first responsive design patterns
+- **Performance**: Debouncing, lazy loading, code splitting, and memoization
+- **Code Quality**: ESLint integration, consistent formatting, and clear documentation
+- **Version Control**: Git workflow with meaningful commits
+- **API Integration**: Error handling, loading states, and retry logic
 
 ---
 
-## 📄 License
+## License
 
 MIT License - Copyright (c) 2025 Sunmyung Woo
 
----
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-## 📞 Contact
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-**Sunmyung Woo** — [GitHub](https://github.com/murasakijyuutann) · [Email](mailto:fishyboyxx@protonmail.com)
-
-Project Link: [https://github.com/murasakijyuutanne/react-movie-review](https://github.com/murasakijyuutann/react-movie-review)
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---
 
-## 🙏 Acknowledgments
+## Contact
 
-- [The Movie Database (TMDB)](https://www.themoviedb.org/) for comprehensive movie data API
-- [Vercel](https://vercel.com/) for serverless deployment platform
-- [AWS RDS](https://aws.amazon.com/rds/) for managed MySQL hosting
+**Sunmyung Woo**
+
+- GitHub: [@murasakijyuutann](https://github.com/murasakijyuutann)
+- Email: fishyboyxx@protonmail.com
+- Project Repository: [github.com/murasakijyuutann/react-movie-review](https://github.com/murasakijyuutann/react-movie-review)
+
+---
+
+## Acknowledgments
+
+- [The Movie Database (TMDB)](https://www.themoviedb.org/) - Comprehensive movie data API
+- [Vercel](https://vercel.com/) - Serverless deployment platform
+- [AWS RDS](https://aws.amazon.com/rds/) - Managed MySQL hosting for future backend features
+- [React Team](https://react.dev/) - React 19 framework and documentation
+- [Vite Team](https://vitejs.dev/) - Next-generation frontend tooling
